@@ -1,8 +1,12 @@
 package com.example.pizzeria;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,46 +14,43 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    // 1. Déclaration des boutons
-    private Button napolitaine;
+    // Déclaration des vues
+    private Button napolitaine, royale, quatresfromages, agnarde;
+    private Button raclette, hawai, tiramisu, pannacotta;
+    private TextView tvTitreTable;
 
-    private Button royale;
-    private Button quatresfromages;
-    private Button agnarde;
-    private Button raclette;
-    private Button hawai;
-    private Button tiramisu;
-    private Button pannacotta;
 
-    // 2. Déclaration des compteurs
-    private int cptNapolitaine = 0;
-    private int cptRoyale = 0;
-    private int cpt4Fromages = 0;
-    private int cptAgnarde = 0;
-    private int cptRaclette = 0;
-    private int cptHawai = 0;
-    private int cptTiramisu = 0;
-    private int cptPannaCotta = 0;
+    private int cptNapolitaine = 0, cptRoyale = 0, cpt4Fromages = 0, cptAgnarde = 0;
+    private int cptRaclette = 0, cptHawai = 0, cptTiramisu = 0, cptPannaCotta = 0;
 
-    // 3. Déclaration des clés pour la sauvegarde (rotation écran)
+
     private static final String KEY_NAPOLITAINE = "KEY_NAPOLITAINE";
     private static final String KEY_ROYALE = "KEY_ROYALE";
     private static final String KEY_QUATRESFROMAGES = "KEY_QUATRESFROMAGES";
     private static final String KEY_AGNARDE = "KEY_AGNARDE";
     private static final String KEY_RACLETTE = "KEY_RACLETTE";
     private static final String KEY_HAWAI = "KEY_HAWAI";
-    private static final String KEY_PANNACOTTA  = "KEY_PANNACOTTA";
+    private static final String KEY_PANNACOTTA = "KEY_PANNACOTTA";
     private static final String KEY_TIRAMISU = "KEY_TIRAMISU";
+
+
+    private String tableActuelle = "01";
+    private final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-
-        // On charge l'interface XML
         setContentView(R.layout.activity_main);
+
+        Log.i("Lifecycle", "MainActivity - onCreate");
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -57,7 +58,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return insets;
         });
 
-        // On récupère les boutons du XML
+
+        tvTitreTable = findViewById(R.id.tv_titre_table);
         napolitaine = findViewById(R.id.napolitaine);
         royale = findViewById(R.id.royale);
         quatresfromages = findViewById(R.id.quatrefromages);
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pannacotta = findViewById(R.id.pannacotta);
         tiramisu = findViewById(R.id.tiramisu);
 
-        // On active l'écouteur de clic sur chaque bouton
+
         napolitaine.setOnClickListener(this);
         royale.setOnClickListener(this);
         quatresfromages.setOnClickListener(this);
@@ -77,7 +79,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pannacotta.setOnClickListener(this);
         tiramisu.setOnClickListener(this);
 
-        // Restauration des données après une rotation de l'écran
+
+        Intent intent = getIntent();
+        String numTable = intent.getStringExtra("NUM_TABLE");
+        if (numTable != null && !numTable.isEmpty()) {
+            tableActuelle = numTable;
+            tvTitreTable.setText("Commande de la table n°" + tableActuelle);
+        }
+
+
         if (savedInstanceState != null) {
             cptNapolitaine = savedInstanceState.getInt(KEY_NAPOLITAINE);
             cptRoyale = savedInstanceState.getInt(KEY_ROYALE);
@@ -88,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             cptPannaCotta = savedInstanceState.getInt(KEY_PANNACOTTA);
             cptTiramisu = savedInstanceState.getInt(KEY_TIRAMISU);
 
-            // Mise à jour de l'affichage avec les données restaurées
             napolitaine.setText("Napolitaine : " + cptNapolitaine);
             royale.setText("Royale : " + cptRoyale);
             quatresfromages.setText("Quatre Fromages : " + cpt4Fromages);
@@ -100,7 +109,112 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // Sauvegarde des données juste avant la rotation de l'écran
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        String codePlat = "";
+
+        if (id == R.id.napolitaine) {
+            cptNapolitaine++;
+            napolitaine.setText("Napolitaine : " + cptNapolitaine);
+            codePlat = "11";
+        } else if (id == R.id.royale) {
+            cptRoyale++;
+            royale.setText("Royale : " + cptRoyale);
+            codePlat = "05";
+        } else if (id == R.id.quatrefromages) {
+            cpt4Fromages++;
+            quatresfromages.setText("Quatre Fromages : " + cpt4Fromages);
+            codePlat = "14";
+        } else if (id == R.id.agnarde) {
+            cptAgnarde++;
+            agnarde.setText("Montagnarde : " + cptAgnarde);
+            codePlat = "18";
+        } else if (id == R.id.raclette) {
+            cptRaclette++;
+            raclette.setText("Raclette : " + cptRaclette);
+            codePlat = "20";
+        } else if (id == R.id.hawai) {
+            cptHawai++;
+            hawai.setText("Hawai : " + cptHawai);
+            codePlat = "06";
+        } else if (id == R.id.pannacotta) {
+            cptPannaCotta++;
+            pannacotta.setText("Panna Cotta : " + cptPannaCotta);
+            codePlat = "94";
+        } else if (id == R.id.tiramisu) {
+            cptTiramisu++;
+            tiramisu.setText("Tiramisu : " + cptTiramisu);
+            codePlat = "91";
+        }
+
+
+        if (!codePlat.isEmpty()) {
+            new CommandeThread(tableActuelle, codePlat).start();
+        }
+    }
+
+
+
+    private class CommandeThread extends Thread {
+        private String numTable;
+        private String codePizza;
+
+        public CommandeThread(String table, String pizza) {
+            this.numTable = table;
+            this.codePizza = pizza;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                if (numTable.length() == 1) {
+                    numTable = "0" + numTable;
+                }
+
+                String messageAEnvoyer = numTable + codePizza;
+
+
+                Socket socket = new Socket("chadok.info", 9874);
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+
+                writer.println(messageAEnvoyer);
+
+
+                final String msg1 = reader.readLine();
+
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvTitreTable.setText(msg1);
+                    }
+                });
+
+
+                final String msg2 = reader.readLine();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvTitreTable.setText(msg2);
+                    }
+                });
+
+
+                socket.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -114,42 +228,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         outState.putInt(KEY_TIRAMISU, cptTiramisu);
     }
 
-    // Méthode appelée à chaque fois qu'un bouton est cliqué
     @Override
-    public void onClick(View v) {
-        int id = v.getId();
-
-        if (id == R.id.napolitaine) {
-            cptNapolitaine++;
-            napolitaine.setText("Napolitaine : " + cptNapolitaine);
-        }
-        else if (id == R.id.royale) {
-            cptRoyale++;
-            royale.setText("Royale : " + cptRoyale);
-        }
-        else if (id == R.id.quatrefromages) {
-            cpt4Fromages++;
-            quatresfromages.setText("Quatre Fromages : " + cpt4Fromages);
-        }
-        else if (id == R.id.agnarde) {
-            cptAgnarde++;
-            agnarde.setText("Montagnarde : " + cptAgnarde);
-        }
-        else if (id == R.id.raclette) {
-            cptRaclette++;
-            raclette.setText("Raclette : " + cptRaclette);
-        }
-        else if (id == R.id.hawai) {
-            cptHawai++;
-            hawai.setText("Hawai : " + cptHawai);
-        }
-        else if (id == R.id.pannacotta) {
-            cptPannaCotta++;
-            pannacotta.setText("Panna Cotta : " + cptPannaCotta);
-        }
-        else if (id == R.id.tiramisu) {
-            cptTiramisu++;
-            tiramisu.setText("Tiramisu : " + cptTiramisu);
-        }
-    }
+    protected void onStart() { super.onStart(); Log.i("Lifecycle", "MainActivity - onStart"); }
+    @Override
+    protected void onResume() { super.onResume(); Log.i("Lifecycle", "MainActivity - onResume"); }
+    @Override
+    protected void onPause() { super.onPause(); Log.i("Lifecycle", "MainActivity - onPause"); }
+    @Override
+    protected void onStop() { super.onStop(); Log.i("Lifecycle", "MainActivity - onStop"); }
+    @Override
+    protected void onDestroy() { super.onDestroy(); Log.i("Lifecycle", "MainActivity - onDestroy"); }
+    @Override
+    protected void onRestart() { super.onRestart(); Log.i("Lifecycle", "MainActivity - onRestart"); }
 }
