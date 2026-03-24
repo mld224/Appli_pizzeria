@@ -13,9 +13,11 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
 
     private Button napolitaine, royale, quatresfromages, agnarde;
     private Button raclette, hawai, tiramisu, pannacotta;
+    private Button btnPerso; // Le nouveau bouton
 
     private int cptNapolitaine = 0, cptRoyale = 0, cpt4Fromages = 0, cptAgnarde = 0;
     private int cptRaclette = 0, cptHawai = 0, cptTiramisu = 0, cptPannaCotta = 0;
+    private int cptPerso = 0; // Le nouveau compteur
 
     private static final String KEY_NAPOLITAINE = "KEY_NAPOLITAINE";
     private static final String KEY_ROYALE = "KEY_ROYALE";
@@ -25,7 +27,7 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
     private static final String KEY_HAWAI = "KEY_HAWAI";
     private static final String KEY_PANNACOTTA = "KEY_PANNACOTTA";
     private static final String KEY_TIRAMISU = "KEY_TIRAMISU";
-
+    private static final String KEY_PERSO = "KEY_PERSO"; // Nouvelle clé
 
     public PizzasFragments() { }
 
@@ -41,6 +43,7 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
         hawai = v.findViewById(R.id.hawai);
         pannacotta = v.findViewById(R.id.pannacotta);
         tiramisu = v.findViewById(R.id.tiramisu);
+        btnPerso = v.findViewById(R.id.btn_perso); // Récupération du bouton
 
         napolitaine.setOnClickListener(this);
         royale.setOnClickListener(this);
@@ -50,6 +53,7 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
         hawai.setOnClickListener(this);
         pannacotta.setOnClickListener(this);
         tiramisu.setOnClickListener(this);
+        btnPerso.setOnClickListener(this); // Clic sur le nouveau bouton
 
         if (savedInstanceState != null) {
             cptNapolitaine = savedInstanceState.getInt(KEY_NAPOLITAINE);
@@ -60,6 +64,7 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
             cptHawai = savedInstanceState.getInt(KEY_HAWAI);
             cptPannaCotta = savedInstanceState.getInt(KEY_PANNACOTTA);
             cptTiramisu = savedInstanceState.getInt(KEY_TIRAMISU);
+            cptPerso = savedInstanceState.getInt(KEY_PERSO); // Restauration
 
             napolitaine.setText("Napolitaine : " + cptNapolitaine);
             royale.setText("Royale : " + cptRoyale);
@@ -69,9 +74,16 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
             hawai.setText("Hawai : " + cptHawai);
             pannacotta.setText("Panna Cotta : " + cptPannaCotta);
             tiramisu.setText("Tiramisu : " + cptTiramisu);
+            if (cptPerso > 0) btnPerso.setText("Pizza Personnalisée : " + cptPerso);
         }
 
         return v;
+    }
+
+    // Méthode publique appelée plus tard pour incrémenter le compteur
+    public void incrementerPerso() {
+        cptPerso++;
+        btnPerso.setText("Pizza Personnalisée : " + cptPerso);
     }
 
     @Override
@@ -79,7 +91,14 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
         int id = v.getId();
         String codePlat = "";
 
-        if (id == R.id.napolitaine) {
+        if (id == R.id.btn_perso) {
+            // activité de charger la page des ingrédients
+            if (getActivity() != null) {
+                ((MainActivity) getActivity()).afficherIngredients();
+            }
+            return;
+        }
+        else if (id == R.id.napolitaine) {
             cptNapolitaine++; napolitaine.setText("Napolitaine : " + cptNapolitaine); codePlat = "11";
         } else if (id == R.id.royale) {
             cptRoyale++; royale.setText("Royale : " + cptRoyale); codePlat = "05";
@@ -113,5 +132,6 @@ public class PizzasFragments extends Fragment implements View.OnClickListener {
         outState.putInt(KEY_HAWAI, cptHawai);
         outState.putInt(KEY_PANNACOTTA, cptPannaCotta);
         outState.putInt(KEY_TIRAMISU, cptTiramisu);
+        outState.putInt(KEY_PERSO, cptPerso); // Sauvegarde
     }
 }
