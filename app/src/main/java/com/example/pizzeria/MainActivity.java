@@ -3,15 +3,10 @@ package com.example.pizzeria;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.TextView;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
+import androidx.fragment.app.Fragment;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -26,19 +21,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
-        Log.i("Lifecycle", "MainActivity - onCreate");
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         tvTitreTable = findViewById(R.id.tv_titre_table);
 
+        // Récupèrationdu numéro de table
         Intent intent = getIntent();
         String numTable = intent.getStringExtra("NUM_TABLE");
         if (numTable != null && !numTable.isEmpty()) {
@@ -47,82 +34,70 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // On ne l'ajoute que si c'est le tout premier lancement de l'activité
         if (savedInstanceState == null) {
-            PizzasFragments frag = new PizzasFragments();
-
-            // On utilise le FragmentManager pour ajouter le fragment dans notre FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, frag)
+                    .add(R.id.fragment_container, new PizzasFragments())
                     .commit();
         }
     }
 
-    // Méthode appelée par le Fragment pour envoyer les données au serveur
+
     public void envoyerCommande(String codePlat) {
         new CommandeThread(tableActuelle, codePlat).start();
     }
 
 
-    private class CommandeThread extends Thread {
-        private String numTable;
-        private String codePizza;
+    public void afficherIngredients() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new IngredientsFragment())
+                .addToBackStack(null)
+                .commit();
+    }
 
-        public CommandeThread(String table, String pizza) {
-            this.numTable = table;
-            this.codePizza = pizza;
+    //
+    public void validerPizzaPerso(String listeIngredients) {
+        new CommandeThread(tableActuelle, "50" + listeIngredients).start();
+        getSupportFragmentManager().popBackStack(); // Retour au fragment précédent
+
+        //incrémenter le compteur
+        getSupportFragmentManager().executePendingTransactions();
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (f instanceof PizzasFragments) {
+            ((PizzasFragments) f).incrementerPerso();
         }
+    }
+
+
+    private class CommandeThread extends Thread {
+        private String numTable, codePizza;
+        public CommandeThread(String t, String p) { this.numTable = t; this.codePizza = p; }
 
         @Override
         public void run() {
             try {
-                if (numTable.length() == 1) {
-                    numTable = "0" + numTable;
-                }
 
-                String messageAEnvoyer = numTable + codePizza;
+                if (numTable.length() == 1) numTable = "0" + numTable;
 
-                Socket socket = new Socket("chadok.info", 9874);
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                // Connexion
+                Socket s = new Socket("chadok.info", 9874);
+                PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
-                writer.println(messageAEnvoyer);
+                out.println(numTable + codePizza);
 
-                final String msg1 = reader.readLine();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvTitreTable.setText(msg1);
-                    }
+
+                final String m1 = in.readLine();
+                final String m2 = in.readLine();
+
+                // Affiche la confirmation
+                handler.post(() -> {
+                    Toast.makeText(MainActivity.this, m1 + "\n" + m2, Toast.LENGTH_LONG).show();
                 });
 
-                final String msg2 = reader.readLine();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvTitreTable.setText(msg2);
-                    }
-                });
-
-                socket.close();
-
+                s.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
-    // CYCLE DE VIE
-    @Override
-    protected void onStart() { super.onStart(); Log.i("Lifecycle", "MainActivity - onStart"); }
-    @Override
-    protected void onResume() { super.onResume(); Log.i("Lifecycle", "MainActivity - onResume"); }
-    @Override
-    protected void onPause() { super.onPause(); Log.i("Lifecycle", "MainActivity - onPause"); }
-    @Override
-    protected void onStop() { super.onStop(); Log.i("Lifecycle", "MainActivity - onStop"); }
-    @Override
-    protected void onDestroy() { super.onDestroy(); Log.i("Lifecycle", "MainActivity - onDestroy"); }
-    @Override
-    protected void onRestart() { super.onRestart(); Log.i("Lifecycle", "MainActivity - onRestart"); }
 }

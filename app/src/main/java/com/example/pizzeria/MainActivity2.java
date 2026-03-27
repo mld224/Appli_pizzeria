@@ -45,7 +45,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        // On charge l'interface XML
+
         setContentView(R.layout.activity_main);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -64,7 +64,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         pannacotta = findViewById(R.id.pannacotta);
         tiramisu = findViewById(R.id.tiramisu);
 
-        // On active l'écouteur de clic sur chaque bouton
+        // On active l'écouteur
         napolitaine.setOnClickListener(this);
         royale.setOnClickListener(this);
         quatresfromages.setOnClickListener(this);
@@ -74,7 +74,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         pannacotta.setOnClickListener(this);
         tiramisu.setOnClickListener(this);
 
-        // Restauration des données après une rotation de l'écran
+
         if (savedInstanceState != null) {
             cptNapolitaine = savedInstanceState.getInt(KEY_NAPOLITAINE);
             cptRoyale = savedInstanceState.getInt(KEY_ROYALE);
@@ -85,7 +85,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
             cptPannaCotta = savedInstanceState.getInt(KEY_PANNACOTTA);
             cptTiramisu = savedInstanceState.getInt(KEY_TIRAMISU);
 
-            // Mise à jour de l'affichage avec les données restaurées
+
             napolitaine.setText("Napolitaine : " + cptNapolitaine);
             royale.setText("Royale : " + cptRoyale);
             quatresfromages.setText("Quatre Fromages : " + cpt4Fromages);
@@ -97,7 +97,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    // Sauvegarde des données juste avant la rotation de l'écran
+    // Sauvegarde des données pour la rotation de l'ecran
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -111,7 +111,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         outState.putInt(KEY_TIRAMISU, cptTiramisu);
     }
 
-    // Méthode appelée à chaque fois qu'un bouton est cliqué
+    // Méthode appelée à chaque fois qu'un bouton est cliquée
     @Override
     public void onClick(View v) {
         int id = v.getId();

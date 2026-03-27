@@ -11,127 +11,108 @@ import androidx.fragment.app.Fragment;
 
 public class PizzasFragments extends Fragment implements View.OnClickListener {
 
-    private Button napolitaine, royale, quatresfromages, agnarde;
-    private Button raclette, hawai, tiramisu, pannacotta;
-    private Button btnPerso; // Le nouveau bouton
-
-    private int cptNapolitaine = 0, cptRoyale = 0, cpt4Fromages = 0, cptAgnarde = 0;
-    private int cptRaclette = 0, cptHawai = 0, cptTiramisu = 0, cptPannaCotta = 0;
-    private int cptPerso = 0; // Le nouveau compteur
-
-    private static final String KEY_NAPOLITAINE = "KEY_NAPOLITAINE";
-    private static final String KEY_ROYALE = "KEY_ROYALE";
-    private static final String KEY_QUATRESFROMAGES = "KEY_QUATRESFROMAGES";
-    private static final String KEY_AGNARDE = "KEY_AGNARDE";
-    private static final String KEY_RACLETTE = "KEY_RACLETTE";
-    private static final String KEY_HAWAI = "KEY_HAWAI";
-    private static final String KEY_PANNACOTTA = "KEY_PANNACOTTA";
-    private static final String KEY_TIRAMISU = "KEY_TIRAMISU";
-    private static final String KEY_PERSO = "KEY_PERSO"; // Nouvelle clé
-
-    public PizzasFragments() { }
+    private Button btnNapo, btnRoyale, btnQuatre, btnAgnarde, btnRaclette, btnHawai, btnPanna, btnTira, btnPerso, btnReset;
+    private int cN=0, cR=0, cQ=0, cA=0, cRac=0, cH=0, cP=0, cT=0, cPerso=0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_pizzas_fragments, container, false);
 
-        napolitaine = v.findViewById(R.id.napolitaine);
-        royale = v.findViewById(R.id.royale);
-        quatresfromages = v.findViewById(R.id.quatrefromages);
-        agnarde = v.findViewById(R.id.agnarde);
-        raclette = v.findViewById(R.id.raclette);
-        hawai = v.findViewById(R.id.hawai);
-        pannacotta = v.findViewById(R.id.pannacotta);
-        tiramisu = v.findViewById(R.id.tiramisu);
-        btnPerso = v.findViewById(R.id.btn_perso); // Récupération du bouton
+        btnNapo = v.findViewById(R.id.napolitaine);
+        btnRoyale = v.findViewById(R.id.royale);
+        btnQuatre = v.findViewById(R.id.quatrefromages);
+        btnAgnarde = v.findViewById(R.id.agnarde);
+        btnRaclette = v.findViewById(R.id.raclette);
+        btnHawai = v.findViewById(R.id.hawai);
+        btnPanna = v.findViewById(R.id.pannacotta);
+        btnTira = v.findViewById(R.id.tiramisu);
+        btnPerso = v.findViewById(R.id.btn_perso);
+        btnReset = v.findViewById(R.id.btn_reset);
 
-        napolitaine.setOnClickListener(this);
-        royale.setOnClickListener(this);
-        quatresfromages.setOnClickListener(this);
-        agnarde.setOnClickListener(this);
-        raclette.setOnClickListener(this);
-        hawai.setOnClickListener(this);
-        pannacotta.setOnClickListener(this);
-        tiramisu.setOnClickListener(this);
-        btnPerso.setOnClickListener(this); // Clic sur le nouveau bouton
+        Button[] bts = {btnNapo, btnRoyale, btnQuatre, btnAgnarde, btnRaclette, btnHawai, btnPanna, btnTira, btnPerso, btnReset};
+        for(Button b : bts) if(b != null) b.setOnClickListener(this);
 
         if (savedInstanceState != null) {
-            cptNapolitaine = savedInstanceState.getInt(KEY_NAPOLITAINE);
-            cptRoyale = savedInstanceState.getInt(KEY_ROYALE);
-            cpt4Fromages = savedInstanceState.getInt(KEY_QUATRESFROMAGES);
-            cptAgnarde = savedInstanceState.getInt(KEY_AGNARDE);
-            cptRaclette = savedInstanceState.getInt(KEY_RACLETTE);
-            cptHawai = savedInstanceState.getInt(KEY_HAWAI);
-            cptPannaCotta = savedInstanceState.getInt(KEY_PANNACOTTA);
-            cptTiramisu = savedInstanceState.getInt(KEY_TIRAMISU);
-            cptPerso = savedInstanceState.getInt(KEY_PERSO); // Restauration
+            cN = savedInstanceState.getInt("CN");
+            cR = savedInstanceState.getInt("CR");
+            cQ = savedInstanceState.getInt("CQ");
+            cA = savedInstanceState.getInt("CA");
+            cRac = savedInstanceState.getInt("CRAC");
+            cH = savedInstanceState.getInt("CH");
+            cP = savedInstanceState.getInt("CP");
+            cT = savedInstanceState.getInt("CT");
+            cPerso = savedInstanceState.getInt("CPERSO");
 
-            napolitaine.setText("Napolitaine : " + cptNapolitaine);
-            royale.setText("Royale : " + cptRoyale);
-            quatresfromages.setText("Quatre Fromages : " + cpt4Fromages);
-            agnarde.setText("Montagnarde : " + cptAgnarde);
-            raclette.setText("Raclette : " + cptRaclette);
-            hawai.setText("Hawai : " + cptHawai);
-            pannacotta.setText("Panna Cotta : " + cptPannaCotta);
-            tiramisu.setText("Tiramisu : " + cptTiramisu);
-            if (cptPerso > 0) btnPerso.setText("Pizza Personnalisée : " + cptPerso);
+            if(cN > 0) btnNapo.setText("Napolitaine : " + cN);
+            if(cR > 0) btnRoyale.setText("Royale : " + cR);
+            if(cQ > 0) btnQuatre.setText("Quatre Fromages : " + cQ);
+            if(cA > 0) btnAgnarde.setText("Montagnarde : " + cA);
+            if(cRac > 0) btnRaclette.setText("Raclette : " + cRac);
+            if(cH > 0) btnHawai.setText("Hawai : " + cH);
+            if(cP > 0) btnPanna.setText("Panna Cotta : " + cP);
+            if(cT > 0) btnTira.setText("Tiramisu : " + cT);
+            if(cPerso > 0) btnPerso.setText("Pizza Personnalisée : " + cPerso);
         }
 
         return v;
     }
 
-    // Méthode publique appelée plus tard pour incrémenter le compteur
     public void incrementerPerso() {
-        cptPerso++;
-        btnPerso.setText("Pizza Personnalisée : " + cptPerso);
+        cPerso++;
+        btnPerso.setText("Pizza Personnalisée : " + cPerso);
     }
 
     @Override
     public void onClick(View v) {
-        int id = v.getId();
-        String codePlat = "";
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity == null) return;
 
-        if (id == R.id.btn_perso) {
-            // activité de charger la page des ingrédients
-            if (getActivity() != null) {
-                ((MainActivity) getActivity()).afficherIngredients();
-            }
+        int id = v.getId();
+        String code = "";
+
+        if (id == R.id.btn_reset) {
+            cN=0; cR=0; cQ=0; cA=0; cRac=0; cH=0; cP=0; cT=0; cPerso=0;
+            btnNapo.setText("Napolitaine");
+            btnRoyale.setText("Royale");
+            btnQuatre.setText("Quatre Fromages");
+            btnAgnarde.setText("Montagnarde");
+            btnRaclette.setText("Raclette");
+            btnHawai.setText("Hawai");
+            btnPanna.setText("Panna Cotta");
+            btnTira.setText("Tiramisu");
+            btnPerso.setText("Pizza Personnalisée");
             return;
         }
-        else if (id == R.id.napolitaine) {
-            cptNapolitaine++; napolitaine.setText("Napolitaine : " + cptNapolitaine); codePlat = "11";
-        } else if (id == R.id.royale) {
-            cptRoyale++; royale.setText("Royale : " + cptRoyale); codePlat = "05";
-        } else if (id == R.id.quatrefromages) {
-            cpt4Fromages++; quatresfromages.setText("Quatre Fromages : " + cpt4Fromages); codePlat = "14";
-        } else if (id == R.id.agnarde) {
-            cptAgnarde++; agnarde.setText("Montagnarde : " + cptAgnarde); codePlat = "18";
-        } else if (id == R.id.raclette) {
-            cptRaclette++; raclette.setText("Raclette : " + cptRaclette); codePlat = "20";
-        } else if (id == R.id.hawai) {
-            cptHawai++; hawai.setText("Hawai : " + cptHawai); codePlat = "06";
-        } else if (id == R.id.pannacotta) {
-            cptPannaCotta++; pannacotta.setText("Panna Cotta : " + cptPannaCotta); codePlat = "94";
-        } else if (id == R.id.tiramisu) {
-            cptTiramisu++; tiramisu.setText("Tiramisu : " + cptTiramisu); codePlat = "91";
+        else if (id == R.id.btn_perso) {
+            activity.afficherIngredients();
+            return;
         }
 
-        if (!codePlat.isEmpty() && getActivity() != null) {
-            ((MainActivity) getActivity()).envoyerCommande(codePlat);
+        if (id == R.id.napolitaine) { cN++; btnNapo.setText("Napolitaine : " + cN); code = "11"; }
+        else if (id == R.id.royale) { cR++; btnRoyale.setText("Royale : " + cR); code = "05"; }
+        else if (id == R.id.quatrefromages) { cQ++; btnQuatre.setText("Quatre Fromages : " + cQ); code = "14"; }
+        else if (id == R.id.agnarde) { cA++; btnAgnarde.setText("Montagnarde : " + cA); code = "18"; }
+        else if (id == R.id.raclette) { cRac++; btnRaclette.setText("Raclette : " + cRac); code = "20"; }
+        else if (id == R.id.hawai) { cH++; btnHawai.setText("Hawai : " + cH); code = "06"; }
+        else if (id == R.id.pannacotta) { cP++; btnPanna.setText("Panna Cotta : " + cP); code = "94"; }
+        else if (id == R.id.tiramisu) { cT++; btnTira.setText("Tiramisu : " + cT); code = "91"; }
+
+        if (!code.isEmpty()) {
+            activity.envoyerCommande(code);
         }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_NAPOLITAINE, cptNapolitaine);
-        outState.putInt(KEY_ROYALE, cptRoyale);
-        outState.putInt(KEY_QUATRESFROMAGES, cpt4Fromages);
-        outState.putInt(KEY_AGNARDE, cptAgnarde);
-        outState.putInt(KEY_RACLETTE, cptRaclette);
-        outState.putInt(KEY_HAWAI, cptHawai);
-        outState.putInt(KEY_PANNACOTTA, cptPannaCotta);
-        outState.putInt(KEY_TIRAMISU, cptTiramisu);
-        outState.putInt(KEY_PERSO, cptPerso); // Sauvegarde
+        outState.putInt("CN", cN);
+        outState.putInt("CR", cR);
+        outState.putInt("CQ", cQ);
+        outState.putInt("CA", cA);
+        outState.putInt("CRAC", cRac);
+        outState.putInt("CH", cH);
+        outState.putInt("CP", cP);
+        outState.putInt("CT", cT);
+        outState.putInt("CPERSO", cPerso);
     }
 }
